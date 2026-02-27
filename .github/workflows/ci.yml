@@ -24,6 +24,6 @@ jobs:
       run: |
         docker run -d -p 8000:8000 --name todo-api todo-api:latest
         sleep 10
-        curl --fail --retry 3 --retry-delay 2 http://localhost:8000/docs || exit 1
+        docker exec todo-api curl --fail http://localhost:8000/docs || exit 1
         docker stop todo-api
         docker rm todo-api
