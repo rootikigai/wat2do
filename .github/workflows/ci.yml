@@ -1,0 +1,29 @@
+name: CI - Build & Test Docker Image
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v4
+
+    - name: Build Docker image
+      run: docker build -t todo-api:latest .
+
+    - name: Run container and test health
+      run: |
+        docker run -d -p 8000:8000 --name todo-api todo-api:latest
+        sleep 10
+        curl --fail --retry 3 --retry-delay 2 http://localhost:8000/docs || exit 1
+        docker stop todo-api
+        docker rm todo-api
